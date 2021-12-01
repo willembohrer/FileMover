@@ -4,12 +4,14 @@ After receiving a new laptop at work and realizing I now needed to sift through 
 
 Usage:
 ======
-* Run FileMover.py
-* Input the following into the Tkinter window:
-    * file extension that you wish to move.
+1. Run FileMover.py
+2. Input the following into the Tkinter window:
+    * File extension that you wish to move.
     * Location path.
     * Destination path.
-* Click the "Set Path" button.
+3. Click the "Set Path" button.
+* Repeat steps 1-3 for all file extensions you wish to move.
+* Click the "Run File Mover" button.
 
 Author:
 ======
