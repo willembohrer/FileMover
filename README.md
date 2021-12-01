@@ -10,6 +10,7 @@ Usage:
     * Location path.
     * Destination path.
 * Click the "Set Path" button.
+
 Author:
 ======
 - [Willem Bohrer](https://www.linkedin.com/in/willembohrer/)
