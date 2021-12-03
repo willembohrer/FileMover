@@ -7,7 +7,6 @@ from tkinter import messagebox
 from re import search
 from re import findall
 import shutil
-import pickle
 import json
 import magic
 
