@@ -8,7 +8,7 @@ from re import search
 from re import findall
 import shutil
 import json
-import magic
+import uuid
 
 class FileMover:
 	FILE_BASE = os.path.dirname(os.path.abspath(__file__)) + '\\Sources\\Files\\'
@@ -48,14 +48,14 @@ class FileMover:
 
 	def set_location_path(self):
 		try:
-			FileMover.location_path = filedialog.askdirectory(mustexist=1, initialdir=os.getcwd(), title='Please select the directory you wish {} files to be moved from'.format(self.file_extension.get())).replace("/","\\")
+			FileMover.location_path = filedialog.askdirectory(mustexist=1, initialdir=os.getcwd(), title='Please select the directory you wish "{}" files to be moved from:'.format(self.file_extension.get())).replace("/","\\")
 		except Exception as exception:
 			messagebox.showerror("Set Base Path Error:", exception)
 			return
 
 	def set_destination_path(self):
 		try:
-			FileMover.destination_path = filedialog.askdirectory(mustexist=1, initialdir=os.getcwd(), title='Please select the directory you wish {} files to go to'.format(self.file_extension.get())).replace("/","\\")
+			FileMover.destination_path = filedialog.askdirectory(mustexist=1, initialdir=os.getcwd(), title='Please select the directory you wish "{}" files to go to:'.format(self.file_extension.get())).replace("/","\\")
 		except Exception as exception:
 			messagebox.showerror("Set Destination Path Error:", exception)
 			return
@@ -77,7 +77,7 @@ class FileMover:
 			'location_path' : 'current location',
 			'destination_path' : 'destination location'
 			})
-			with open('{}Paths.JSON'.format(FILE_BASE), 'w') as handle:
+			with open('{}Paths.JSON'.format(FileMover.FILE_BASE), 'w') as handle:
 				json.dump(json_path_object, handle, indent=4)
 		except Exception as exception:
 			messagebox.showerror("Show Paths Error:", exception)
@@ -155,15 +155,23 @@ class FileMover:
 				for element in json_path_object['path_object']:
 					rootPath = element['location_path']
 					files = [i for i in os.listdir(rootPath) if os.path.isfile(os.path.join(rootPath, i))]
+					files.remove('desktop.ini')
 					for file in files:
-						if search("desktop.ini", file.lower()):
-							continue
-						elif search(element['file_extension'], str(magic.from_file(os.path.join(rootPath, file), mime=True)).lower()):
+						file_extension = file.rsplit('.', 1)[-1]
+						if element['file_extension'].lower() == file_extension.lower():
 							path = os.path.join(element['destination_path'], element['file_extension'])
 							print(path)
 							if not os.path.exists(path):
 								os.mkdir(path)
-							shutil.move(os.path.join(rootPath, file), (element['destination_path'] + '\\' + element['file_extension']))
+							try:
+								shutil.move(os.path.join(rootPath, file), (element['destination_path'] + '\\' + element['file_extension']))
+							except OSError as exception:
+								# Rename duplicate files and move them
+								new_file = '{}_{}'.format(uuid.uuid4().hex.upper()[0:6], file)
+								os.rename(os.path.join(rootPath, file), os.path.join(rootPath, new_file))
+								shutil.move(os.path.join(rootPath, new_file), (element['destination_path'] + '\\' + element['file_extension']))
+		except FileNotFoundError as exception:
+			messagebox.showerror("Move Files Error:", exception)
 		except Exception as exception:
 			messagebox.showerror("Move Files Error:", exception)
 			return
